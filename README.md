@@ -1,2 +1,2 @@
 # runtime-systems-VERSE
-Virtual execution runtime stack vs. register experimentation
+Virtual execution register-stack experimentation
