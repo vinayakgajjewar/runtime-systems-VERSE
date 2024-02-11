@@ -13,6 +13,15 @@
 #define ENCODE_OP_REG_IMM(op, reg, imm) (ENCODE_OP(op) | ((reg) << 8) | (imm))
 #define ENCODE_OP_REGS(op, r0, r1, r2)  (ENCODE_OP(op) | ((r0) << 8) | ((r1) << 4) | (r2))
 
+/*
+ * Helpful macros for decoding instructions.
+ */
+#define DECODE_OP(instruction)  ((instruction & 0xF000) >> 12)
+#define DECODE_R0(instruction)  ((instruction & 0x0F00) >> 8)
+#define DECODE_R1(instruction)  ((instruction & 0x00F0) >> 4)
+#define DECODE_R2(instruction)  (instruction & 0x000F)
+#define DECODE_IMM(instruction) (instruction & 0x00FF)
+
 struct {
     uint16_t *instruction_ptr;
     uint64_t regs[NUM_REGS];
