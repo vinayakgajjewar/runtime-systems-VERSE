@@ -77,23 +77,32 @@ result interpret(uint16_t *bytecode) {
          */
         switch (op) {
             case LOAD_IMM:
+                vm.regs[r0] = imm;
                 break;
             case ADD:
+                vm.regs[r2] = vm.regs[r0] + vm.regs[r1];
                 break;
             case SUB:
+                vm.regs[r2] = vm.regs[r0] - vm.regs[r1];
                 break;
             case MUL:
+                vm.regs[r2] = vm.regs[r0] * vm.regs[r1];
                 break;
             case DIV:
+                if (vm.regs[r1] == 0) {
+                    return ERR_DIV_ZERO;
+                }
+                vm.regs[r2] = vm.regs[r0] / vm.regs[r1];
                 break;
             case MOV_RES:
+                vm.result = vm.regs[r0];
                 break;
             case DONE:
-                break;
+                return SUCCESS;
             default:
                 fprintf(stderr, "Unknown opcode\n");
                 fflush(stderr);
-                exit(EXIT_FAILURE);
+                return ERR_UNKNOWN_OPCODE;
         }
     }
 }
