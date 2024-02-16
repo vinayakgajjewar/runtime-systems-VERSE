@@ -2,6 +2,8 @@
 #define VERSE_REG_INTERPRETER_H_
 
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #define NUM_REGS 16
 
@@ -46,13 +48,54 @@ typedef enum result {
 
 void reset_vm();
 
-void decode(uint16_t instruction,
-            uint8_t *op,
-            uint8_t *r0,
-            uint8_t *r1,
-            uint8_t *r2,
-            uint8_t *imm);
+result interpret(uint16_t *bytecode) {
+    vm.instruction_ptr = bytecode;
+    uint8_t op;
+    uint8_t r0;
+    uint8_t r1;
+    uint8_t r2;
+    uint8_t imm;
 
-result interpret(uint16_t *bytecode);
+    /*
+     * Loop until we hit a DONE instruction or an instruction we don't
+     * recognize.
+     */
+    for (;;) {
+
+        /*
+         * Fetch the next instruction and decode its arguments.
+         */
+        uint16_t instruction = *vm.instruction_ptr++;
+        op = DECODE_OP(instruction);
+        r0 = DECODE_R0(instruction);
+        r1 = DECODE_R1(instruction);
+        r2 = DECODE_R2(instruction);
+        imm = DECODE_IMM(instruction);
+
+        /*
+         * Dispatch based on the opcode.
+         */
+        switch (op) {
+            case LOAD_IMM:
+                break;
+            case ADD:
+                break;
+            case SUB:
+                break;
+            case MUL:
+                break;
+            case DIV:
+                break;
+            case MOV_RES:
+                break;
+            case DONE:
+                break;
+            default:
+                fprintf(stderr, "Unknown opcode\n");
+                fflush(stderr);
+                exit(EXIT_FAILURE);
+        }
+    }
+}
 
 #endif
