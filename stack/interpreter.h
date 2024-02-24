@@ -3,6 +3,8 @@
 
 #define STACK_MAX 256
 
+#define DEBUG(x) printf("(" + __FILE_NAME__ + ":" + __LINE__ + ") " + x + "\n")
+
 #include <stdint.h>
 #include <stdio.h>
 
@@ -34,13 +36,16 @@ void reset_vm() {
 }
 
 void stack_push(uint64_t val) {
+    printf("Pushing %" PRIu64 " onto the stack\n", val);
     *vm.stack_top = val;
     vm.stack_top++;
 }
 
 uint64_t stack_pop() {
     vm.stack_top--;
-    return *vm.stack_top;
+    uint64_t val = *vm.stack_top;
+    printf("Popped %" PRIu64 " off the stack \n", val);
+    return val;
 }
 
 result interpret(uint8_t *bytecode) {
