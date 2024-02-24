@@ -32,6 +32,7 @@ typedef enum result {
 } result;
 
 void reset_vm() {
+    printf("Resetting VM state\n");
     vm.stack_top = vm.stack;
 }
 

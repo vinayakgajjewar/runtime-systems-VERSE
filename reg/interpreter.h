@@ -1,10 +1,14 @@
 #ifndef VERSE_REG_INTERPRETER_H_
 #define VERSE_REG_INTERPRETER_H_
 
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+/*
+ * Our virtual machine has 16 registers with 64 bits each.
+ */
 #define NUM_REGS 16
 
 /*
@@ -30,6 +34,9 @@ struct {
     uint64_t result;
 } vm;
 
+/*
+ * Define all the different opcodes we support.
+ */
 typedef enum {
     LOAD_IMM,
     ADD,
@@ -40,14 +47,23 @@ typedef enum {
     DONE
 } opcode;
 
+/*
+ * Define possible exit statuses for our VM.
+ */
 typedef enum result {
     SUCCESS,
     ERR_DIV_ZERO,
     ERR_UNKNOWN_OPCODE
 } result;
 
-void reset_vm();
+void reset_vm() {
+    printf("Resetting VM state\n");
+    vm = (typeof(vm)) {NULL};
+}
 
+/*
+ * The heart and soul of our virtual machine.
+ */
 result interpret(uint16_t *bytecode) {
     vm.instruction_ptr = bytecode;
     uint8_t op;
@@ -77,27 +93,34 @@ result interpret(uint16_t *bytecode) {
          */
         switch (op) {
             case LOAD_IMM:
+                printf("LOAD_IMM %" PRIu8 "\n", imm);
                 vm.regs[r0] = imm;
                 break;
             case ADD:
+                printf("ADD\n");
                 vm.regs[r2] = vm.regs[r0] + vm.regs[r1];
                 break;
             case SUB:
+                printf("SUB\n");
                 vm.regs[r2] = vm.regs[r0] - vm.regs[r1];
                 break;
             case MUL:
+                printf("MUL\n");
                 vm.regs[r2] = vm.regs[r0] * vm.regs[r1];
                 break;
             case DIV:
+                printf("DIV\n");
                 if (vm.regs[r1] == 0) {
                     return ERR_DIV_ZERO;
                 }
                 vm.regs[r2] = vm.regs[r0] / vm.regs[r1];
                 break;
             case MOV_RES:
+                printf("MOV_RES %" PRIu64 "\n", vm.regs[r0]);
                 vm.result = vm.regs[r0];
                 break;
             case DONE:
+                printf("DONE\n");
                 return SUCCESS;
             default:
                 fprintf(stderr, "Unknown opcode\n");
