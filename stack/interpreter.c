@@ -4,6 +4,11 @@
 
 #include "interpreter.h"
 
+/*
+ * Right now, we don't support source files larger than 100 bytes.
+ */
+#define MAX_SIZE 100
+
 int main(int argc, char *argv[]) {
 
     /*
@@ -27,8 +32,8 @@ int main(int argc, char *argv[]) {
     /*
      * Read the source file into memory.
      */
-    uint8_t code[7];
-    size_t size_read = fread(code, sizeof(uint8_t), 7, file);
+    uint8_t code[MAX_SIZE];
+    size_t size_read = fread(code, sizeof(uint8_t), MAX_SIZE, file);
     if (size_read == 0) {
         fprintf(stderr, "Error reading source file\n");
         fflush(stderr);
