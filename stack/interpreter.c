@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <inttypes.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "interpreter.h"
 
@@ -10,6 +11,11 @@
 #define MAX_SIZE 100
 
 int main(int argc, char *argv[]) {
+
+    /*
+     * Start the clock.
+     */
+    clock_t begin = clock();
 
     /*
      * Check for the correct number of arguments.
@@ -55,4 +61,11 @@ int main(int argc, char *argv[]) {
     result r = interpret(code);
     assert(r == SUCCESS);
     printf("Result: %" PRIu64 "\n", vm.res);
+
+    /*
+     * Stop the clock.
+     */
+    clock_t end = clock();
+    double time_spent = (double) (end - begin) / CLOCKS_PER_SEC;
+    printf("Execution took %lf seconds\n", time_spent);
 }
