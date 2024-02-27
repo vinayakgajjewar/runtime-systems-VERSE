@@ -1,5 +1,5 @@
-#ifndef VERSE_REG_INTERPRETER_H_
-#define VERSE_REG_INTERPRETER_H_
+#ifndef VERSE_REG_VM_H_
+#define VERSE_REG_VM_H_
 
 #include <inttypes.h>
 #include <stdint.h>
