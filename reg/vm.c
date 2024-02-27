@@ -1,13 +1,8 @@
 #include <assert.h>
-#include <inttypes.h>
-#include <stdlib.h>
 #include <time.h>
 
-#include "interpreter.h"
+#include "vm.h"
 
-/*
- * Right now, we don't support source files larger than 100 bytes.
- */
 #define MAX_SIZE 100
 
 int main(int argc, char *argv[]) {
@@ -21,12 +16,12 @@ int main(int argc, char *argv[]) {
      * Check for the correct number of arguments.
      */
     if (argc != 2) {
-        printf("Usage: ./stack-vm <bytecode file>\n");
+        printf("Usage: ./reg-vm <bytecode file>\n");
         exit(EXIT_FAILURE);
     }
 
     /*
-     * Try opening the input file.
+     * Try opening the input file and complain if things go wrong.
      */
     FILE *file = fopen(argv[1], "rb");
     if (file == NULL) {
@@ -36,31 +31,33 @@ int main(int argc, char *argv[]) {
     }
 
     /*
-     * Read the source file into memory.
+     * Read the program source into memory.
      */
-    uint8_t code[MAX_SIZE];
-    size_t size_read = fread(code, sizeof(uint8_t), MAX_SIZE, file);
+    /*uint16_t code[MAX_SIZE];
+    size_t size_read = fread(code, sizeof(uint16_t), MAX_SIZE, file);
     if (size_read == 0) {
         fprintf(stderr, "Error reading source file\n");
         fflush(stderr);
         exit(EXIT_FAILURE);
-    }
+    }*/
+
+    uint16_t code[] = {
+            ENCODE_OP_REG_IMM(LOAD_IMM, 3, 5),
+            ENCODE_OP_REG(MOV_RES, 3),
+            ENCODE_OP(DONE)
+    };
 
     /*
-     * Print out what we read.
+     * Print out whatever we just read in.
      */
-    for (size_t i = 0; i < size_read; i++) {
-        printf("%02X ", code[i]);
+    for (size_t i = 0; i < 3; i++) {
+        printf("%zu: %X\n", i, code[i]);
     }
-    printf("\n");
 
-    /*
-     * Run our interpreter.
-     */
     reset_vm();
-    result r = interpret(code);
-    assert(r == SUCCESS);
-    printf("Result: %" PRIu64 "\n", vm.res);
+    result res = interpret(code);
+    assert(res == SUCCESS);
+    assert(vm.result == 5);
 
     /*
      * Stop the clock.

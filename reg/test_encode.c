@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include "interpreter.h"
+#include "vm.h"
 
 int main() {
 
