@@ -1,1 +1,6 @@
 .idea
+reg-vm.dSYM/
+stack-vm.dSYM/
+reg-vm
+stack-vm
+test-encode

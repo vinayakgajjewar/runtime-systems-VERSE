@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -g -std=gnu17
+CFLAGS = -Wall -std=gnu17
 EXECUTABLES = reg-vm test-encode stack-vm
 
 stack-vm: stack/interpreter.h stack/interpreter.c
