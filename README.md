@@ -1,2 +1,3 @@
-# runtime-systems-VERSE
-Virtual execution register-stack experimentation
+# VERSE
+
+Virtual Execution Register-Stack Experimentation

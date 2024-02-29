@@ -8,6 +8,9 @@
 #include <stdint.h>
 #include <stdio.h>
 
+/*
+ * This struct encapsulates the state of our virtual machine.
+ */
 struct {
     uint8_t *instruction_ptr;
     uint64_t stack[STACK_MAX];
@@ -25,6 +28,9 @@ typedef enum {
     DONE
 } opcode;
 
+/*
+ * Define possible termination statuses for our VM.
+ */
 typedef enum result {
     SUCCESS,
     ERR_DIV_ZERO,
@@ -36,8 +42,11 @@ void reset_vm() {
     vm.stack_top = vm.stack;
 }
 
+/*
+ * TODO Inline these into the instruction handlers.
+ */
 void stack_push(uint64_t val) {
-    printf("Pushing %" PRIu64 " onto the stack\n", val);
+    printf("Pushing %llu onto the stack\n", val);
     *vm.stack_top = val;
     vm.stack_top++;
 }
@@ -45,40 +54,93 @@ void stack_push(uint64_t val) {
 uint64_t stack_pop() {
     vm.stack_top--;
     uint64_t val = *vm.stack_top;
-    printf("Popped %" PRIu64 " off the stack \n", val);
+    printf("Popped %llu off the stack\n", val);
     return val;
 }
 
-result interpret(uint8_t *bytecode) {
+void do_push_imm() {
+    uint8_t arg = *vm.instruction_ptr++;
+    stack_push(arg);
+}
+
+void do_add() {
+    uint64_t op2 = stack_pop();
+    uint64_t op1 = stack_pop();
+    stack_push(op1 + op2);
+}
+
+void do_sub() {
+    uint64_t op2 = stack_pop();
+    uint64_t op1 = stack_pop();
+    stack_push(op1 - op2);
+}
+
+void do_mul() {
+    uint64_t op2 = stack_pop();
+    uint64_t op1 = stack_pop();
+    stack_push(op1 * op2);
+}
+
+void do_div() {
+    uint64_t op2 = stack_pop();
+    uint64_t op1 = stack_pop();
+
+    /*
+     * Check for division by zero.
+     *
+     * TODO How should we fail gracefully here?
+     */
+    if (op2 == 0) {
+        printf("Division by zero encountered\n");
+        exit(EXIT_FAILURE);
+    }
+    stack_push(op1 / op2);
+}
+
+void do_pop_res() {
+    vm.res = stack_pop();
+}
+
+/*
+ * I want to test how much function calls slow down our dispatch loop.
+ */
+/*result interpret_function_dispatch(uint8_t *bytecode) {
+
+}*/
+
+/*
+ * TODO Inline the stack pushes and pops.
+ */
+result interpret_inline(uint8_t *bytecode) {
     vm.instruction_ptr = bytecode;
     for (;;) {
         uint8_t instruction = *vm.instruction_ptr++;
-        switch(instruction) {
+        switch (instruction) {
             case PUSH_IMM: {
-
-                /*
-                 * Get the immediate value and push it onto the stack.
-                 */
                 uint8_t arg = *vm.instruction_ptr++;
-                stack_push(arg);
+                *vm.stack_top = arg;
+                vm.stack_top++;
                 break;
             }
             case ADD: {
                 uint64_t op2 = stack_pop();
                 uint64_t op1 = stack_pop();
-                stack_push(op1 + op2);
+                *vm.stack_top = op1 + op2;
+                vm.stack_top++;
                 break;
             }
             case SUB: {
                 uint64_t op2 = stack_pop();
                 uint64_t op1 = stack_pop();
-                stack_push(op1 - op2);
+                *vm.stack_top = op1 - op2;
+                vm.stack_top++;
                 break;
             }
             case MUL: {
                 uint64_t op2 = stack_pop();
                 uint64_t op1 = stack_pop();
-                stack_push(op1 * op2);
+                *vm.stack_top = op1 * op2;
+                vm.stack_top++;
                 break;
             }
             case DIV: {
@@ -91,7 +153,8 @@ result interpret(uint8_t *bytecode) {
                 if (op2 == 0) {
                     return ERR_DIV_ZERO;
                 }
-                stack_push(op1 / op2);
+                *vm.stack_top = op1 / op2;
+                vm.stack_top++;
                 break;
             }
             case POP_RES: {
@@ -99,8 +162,8 @@ result interpret(uint8_t *bytecode) {
                 /*
                  * Pop and set that value as the return val.
                  */
-                uint64_t res = stack_pop();
-                vm.res = res;
+                vm.stack_top--;
+                vm.res = *vm.stack_top;
                 break;
             }
             case DONE: {

@@ -10,6 +10,8 @@
  */
 #define MAX_SIZE 100
 
+#define USAGE_STR "Usage: ./stack-vm <bytecode file> <dispatch type>\n"
+
 int main(int argc, char *argv[]) {
 
     /*
@@ -20,8 +22,8 @@ int main(int argc, char *argv[]) {
     /*
      * Check for the correct number of arguments.
      */
-    if (argc != 2) {
-        printf("Usage: ./stack-vm <bytecode file>\n");
+    if (argc != 3) {
+        printf(USAGE_STR);
         exit(EXIT_FAILURE);
     }
 
@@ -50,7 +52,6 @@ int main(int argc, char *argv[]) {
      * Print out what we read.
      */
     for (size_t i = 0; i < size_read; i++) {
-        //printf("%02X ", code[i]);
         printf("%zu:\t%02X\n", i, code[i]);
     }
 
@@ -58,7 +59,7 @@ int main(int argc, char *argv[]) {
      * Run our interpreter.
      */
     reset_vm();
-    result r = interpret(code);
+    result r = interpret_inline(code);
     assert(r == SUCCESS);
     printf("Result: %" PRIu64 "\n", vm.res);
 
