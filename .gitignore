@@ -4,3 +4,4 @@ stack-vm.dSYM/
 reg-vm
 stack-vm
 test-encode
+stack-assemble
