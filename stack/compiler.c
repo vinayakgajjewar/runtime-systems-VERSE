@@ -7,13 +7,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define USAGE_STR "Usage: ./stack-compile <source> <dest>\n"
+
 int main(int argc, char *argv[]) {
 
     /*
      * Check for the correct number of arguments.
      */
     if (argc != 3) {
-        printf("Usage: ./stack-compile <source> <dest>\n");
+        printf(USAGE_STR);
+        exit(EXIT_FAILURE);
     }
 
     /*

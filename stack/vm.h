@@ -43,8 +43,9 @@ void reset_vm() {
 }
 
 /*
- * TODO Inline these into the instruction handlers.
+ * Define helper functions for manipulating the stack.
  */
+
 void stack_push(uint64_t val) {
     printf("Pushing %llu onto the stack\n", val);
     *vm.stack_top = val;
@@ -104,12 +105,49 @@ void do_pop_res() {
 /*
  * I want to test how much function calls slow down our dispatch loop.
  */
-/*result interpret_function_dispatch(uint8_t *bytecode) {
-
-}*/
+result interpret_function_dispatch(uint8_t *bytecode) {
+    vm.instruction_ptr = bytecode;
+    for (;;) {
+        uint8_t instruction = *vm.instruction_ptr++;
+        switch (instruction) {
+            case PUSH_IMM: {
+                do_push_imm();
+                break;
+            }
+            case ADD: {
+                do_add();
+                break;
+            }
+            case SUB: {
+                do_sub();
+                break;
+            }
+            case MUL: {
+                do_mul();
+                break;
+            }
+            case DIV: {
+                do_div();
+                break;
+            }
+            case POP_RES: {
+                do_pop_res();
+                break;
+            }
+            case DONE: {
+                return SUCCESS;
+            }
+            default: {
+                fprintf(stderr, "Unknown opcode\n");
+                fflush(stderr);
+                return ERR_UNKNOWN_OPCODE;
+            }
+        }
+    }
+}
 
 /*
- * TODO Inline the stack pushes and pops.
+ * Interpreter loop without any function calls.
  */
 result interpret_inline(uint8_t *bytecode) {
     vm.instruction_ptr = bytecode;

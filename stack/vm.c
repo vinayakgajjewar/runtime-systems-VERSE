@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <inttypes.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #include "vm.h"
@@ -56,10 +57,24 @@ int main(int argc, char *argv[]) {
     }
 
     /*
-     * Run our interpreter.
+     * Invoke the interpreter depending on what the user specifies.
      */
     reset_vm();
-    result r = interpret_inline(code);
+    result r;
+    if (strcmp(argv[2], "inline") == 0) {
+        printf("Invoking inline interpreter\n");
+        fflush(stdout);
+        r = interpret_inline(code);
+    } else if (strcmp(argv[2], "func") == 0) {
+        printf("Invoking function dispatch interpreter\n");
+        fflush(stdout);
+        r = interpret_function_dispatch(code);
+    } else {
+        fprintf(stderr, "Unrecognized dispatch type\n");
+        fprintf(stderr, "Quitting...\n");
+        fflush(stderr);
+        exit(EXIT_FAILURE);
+    }
     assert(r == SUCCESS);
     printf("Result: %" PRIu64 "\n", vm.res);
 
