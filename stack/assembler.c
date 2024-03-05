@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define USAGE_STR "Usage: ./stack-compile <source> <dest>\n"
+#define USAGE_STR "Usage: ./stack-assemble <source> <dest>\n"
 
 int main(int argc, char *argv[]) {
 
