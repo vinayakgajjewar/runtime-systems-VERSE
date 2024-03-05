@@ -3,10 +3,13 @@
 
 #define STACK_MAX 256
 
-#define DEBUG(x) printf("(" + __FILE_NAME__ + ":" + __LINE__ + ") " + x + "\n")
-
 #include <stdint.h>
 #include <stdio.h>
+
+/*
+ * TODO Fail gracefully if we try to pop a value that doesn't exist off the
+ * TODO stack.
+ */
 
 /*
  * This struct encapsulates the state of our virtual machine.
@@ -111,30 +114,43 @@ result interpret_function_dispatch(uint8_t *bytecode) {
         uint8_t instruction = *vm.instruction_ptr++;
         switch (instruction) {
             case PUSH_IMM: {
+                printf("Doing PUSH_IMM\n");
                 do_push_imm();
+                printf("Done with PUSH_IMM\n");
                 break;
             }
             case ADD: {
+                printf("Doing ADD\n");
                 do_add();
+                printf("Done with ADD\n");
                 break;
             }
             case SUB: {
+                printf("Doing SUB\n");
                 do_sub();
+                printf("Done with SUB\n");
                 break;
             }
             case MUL: {
+                printf("Doing MUL\n");
                 do_mul();
+                printf("Done with MUL\n");
                 break;
             }
             case DIV: {
+                printf("Doing DIV\n");
                 do_div();
+                printf("Done with DIV\n");
                 break;
             }
             case POP_RES: {
+                printf("Doing POP_RES\n");
                 do_pop_res();
+                printf("Done with POP_RES\n");
                 break;
             }
             case DONE: {
+                printf("Done!\n");
                 return SUCCESS;
             }
             default: {
@@ -150,6 +166,7 @@ result interpret_function_dispatch(uint8_t *bytecode) {
  * Interpreter loop without any function calls.
  */
 result interpret_inline(uint8_t *bytecode) {
+    printf("Inside inline dispatch\n");
     vm.instruction_ptr = bytecode;
     for (;;) {
         uint8_t instruction = *vm.instruction_ptr++;
@@ -161,29 +178,37 @@ result interpret_inline(uint8_t *bytecode) {
                 break;
             }
             case ADD: {
-                uint64_t op2 = stack_pop();
-                uint64_t op1 = stack_pop();
+                vm.stack_top--;
+                uint64_t op2 = *vm.stack_top;
+                vm.stack_top--;
+                uint64_t op1 = *vm.stack_top;
                 *vm.stack_top = op1 + op2;
                 vm.stack_top++;
                 break;
             }
             case SUB: {
-                uint64_t op2 = stack_pop();
-                uint64_t op1 = stack_pop();
+                vm.stack_top--;
+                uint64_t op2 = *vm.stack_top;
+                vm.stack_top--;
+                uint64_t op1 = *vm.stack_top;
                 *vm.stack_top = op1 - op2;
                 vm.stack_top++;
                 break;
             }
             case MUL: {
-                uint64_t op2 = stack_pop();
-                uint64_t op1 = stack_pop();
+                vm.stack_top--;
+                uint64_t op2 = *vm.stack_top;
+                vm.stack_top--;
+                uint64_t op1 = *vm.stack_top;
                 *vm.stack_top = op1 * op2;
                 vm.stack_top++;
                 break;
             }
             case DIV: {
-                uint64_t op2 = stack_pop();
-                uint64_t op1 = stack_pop();
+                vm.stack_top--;
+                uint64_t op2 = *vm.stack_top;
+                vm.stack_top--;
+                uint64_t op1 = *vm.stack_top;
 
                 /*
                  * Check for division by zero.
