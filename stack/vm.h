@@ -208,27 +208,39 @@ result interpret_function_dispatch(uint8_t *bytecode) {
                 break;
             }
             case AND: {
+                printf("Doing AND\n");
                 do_and();
+                printf("Done with AND\n");
                 break;
             }
             case OR: {
+                printf("Doing OR\n");
                 do_or();
+                printf("Done with OR\n");
                 break;
             }
             case XOR: {
+                printf("Doing XOR\n");
                 do_xor();
+                printf("Done with XOR\n");
                 break;
             }
             case NOT: {
+                printf("Doing NOT\n");
                 do_not();
+                printf("Done with NOT\n");
                 break;
             }
             case LSHIFT: {
+                printf("Doing LSHIFT\n");
                 do_lshift();
+                printf("Done with LSHIFT\n");
                 break;
             }
             case RSHIFT: {
+                printf("Doing RSHIFT\n");
                 do_rshift();
+                printf("Done with RSHIFT\n");
                 break;
             }
             case POP_RES: {
