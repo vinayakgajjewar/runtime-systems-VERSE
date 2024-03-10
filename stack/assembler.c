@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
                 fflush(stderr);
                 exit(EXIT_FAILURE);
             }
-            printf("%s\n", line);
+            printf("%s", line);
 
             /*
              * TODO This is just hard-coded for now. I need to figure out how to

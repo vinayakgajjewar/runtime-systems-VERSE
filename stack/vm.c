@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
     assert(r == SUCCESS);
-    printf("Result: %" PRIu64 "\n", vm.res);
+    printf("Result: %" PRIu64 "\n", vm.result);
 
     /*
      * Stop the clock.

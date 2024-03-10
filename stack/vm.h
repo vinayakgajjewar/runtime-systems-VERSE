@@ -1,10 +1,14 @@
 #ifndef VERSE_STACK_VM_H_
 #define VERSE_STACK_VM_H_
 
+/*
+ * Our runtime stack has 256 slots.
+ */
 #define STACK_MAX 256
 
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 /*
  * TODO Fail gracefully if we try to pop a value that doesn't exist off the
@@ -16,17 +20,40 @@
  */
 struct {
     uint8_t *instruction_ptr;
+
+    /*
+     * Define our runtime stack.
+     */
     uint64_t stack[STACK_MAX];
+
+    /*
+     * This points to the first free slot of the runtime stack.
+     */
     uint64_t *stack_top;
-    uint64_t res;
+
+    /*
+     * This variable will hold the result of our execution.
+     */
+    uint64_t result;
 } vm;
 
+/*
+ * Define all the opcodes we recognize.
+ *
+ * TODO Need to synchronize this with the assembler.
+ */
 typedef enum {
     PUSH_IMM,
     ADD,
     SUB,
     MUL,
     DIV,
+    AND,
+    OR,
+    XOR,
+    NOT,
+    LSHIFT,
+    RSHIFT,
     POP_RES,
     DONE
 } opcode;
@@ -101,8 +128,45 @@ void do_div() {
     stack_push(op1 / op2);
 }
 
+void do_and() {
+    uint64_t op2 = stack_pop();
+    uint64_t op1 = stack_pop();
+    stack_push(op1 & op2);
+}
+
+void do_or() {
+    uint64_t op2 = stack_pop();
+    uint64_t op1 = stack_pop();
+    stack_push(op1 | op2);
+}
+
+void do_xor() {
+    uint64_t op2 = stack_pop();
+    uint64_t op1 = stack_pop();
+    stack_push(op1 ^ op2);
+}
+
+/*
+ * please do not the cat
+ */
+void do_not() {
+    stack_push(~stack_pop());
+}
+
+void do_lshift() {
+    uint64_t op2 = stack_pop();
+    uint64_t op1 = stack_pop();
+    stack_push(op1 << op2);
+}
+
+void do_rshift() {
+    uint64_t op2 = stack_pop();
+    uint64_t op1 = stack_pop();
+    stack_push(op1 >> op2);
+}
+
 void do_pop_res() {
-    vm.res = stack_pop();
+    vm.result = stack_pop();
 }
 
 /*
@@ -141,6 +205,30 @@ result interpret_function_dispatch(uint8_t *bytecode) {
                 printf("Doing DIV\n");
                 do_div();
                 printf("Done with DIV\n");
+                break;
+            }
+            case AND: {
+                do_and();
+                break;
+            }
+            case OR: {
+                do_or();
+                break;
+            }
+            case XOR: {
+                do_xor();
+                break;
+            }
+            case NOT: {
+                do_not();
+                break;
+            }
+            case LSHIFT: {
+                do_lshift();
+                break;
+            }
+            case RSHIFT: {
+                do_rshift();
                 break;
             }
             case POP_RES: {
@@ -220,13 +308,64 @@ result interpret_inline(uint8_t *bytecode) {
                 vm.stack_top++;
                 break;
             }
+            case AND: {
+                vm.stack_top--;
+                uint64_t op2 = *vm.stack_top;
+                vm.stack_top--;
+                uint64_t op1 = *vm.stack_top;
+                *vm.stack_top = op1 & op2;
+                vm.stack_top++;
+                break;
+            }
+            case OR: {
+                vm.stack_top--;
+                uint64_t op2 = *vm.stack_top;
+                vm.stack_top--;
+                uint64_t op1 = *vm.stack_top;
+                *vm.stack_top = op1 | op2;
+                vm.stack_top++;
+                break;
+            }
+            case XOR: {
+                vm.stack_top--;
+                uint64_t op2 = *vm.stack_top;
+                vm.stack_top--;
+                uint64_t op1 = *vm.stack_top;
+                *vm.stack_top = op1 ^ op2;
+                vm.stack_top++;
+                break;
+            }
+            case NOT: {
+                vm.stack_top--;
+                *vm.stack_top = ~(*vm.stack_top);
+                vm.stack_top++;
+                break;
+            }
+            case LSHIFT: {
+                vm.stack_top--;
+                uint64_t op2 = *vm.stack_top;
+                vm.stack_top--;
+                uint64_t op1 = *vm.stack_top;
+                *vm.stack_top = op1 << op2;
+                vm.stack_top++;
+                break;
+            }
+            case RSHIFT: {
+                vm.stack_top--;
+                uint64_t op2 = *vm.stack_top;
+                vm.stack_top--;
+                uint64_t op1 = *vm.stack_top;
+                *vm.stack_top = op1 >> op2;
+                vm.stack_top++;
+                break;
+            }
             case POP_RES: {
 
                 /*
                  * Pop and set that value as the return val.
                  */
                 vm.stack_top--;
-                vm.res = *vm.stack_top;
+                vm.result = *vm.stack_top;
                 break;
             }
             case DONE: {
