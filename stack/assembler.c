@@ -12,9 +12,26 @@
 
 /*
  * TODO
+ * I should also macro-ify the error strings.
+ */
+
+/*
  * It would also be nice to macro-ify the instruction strings themselves. I'd
  * like to avoid having any "magic literals" in my code if possible.
  */
+#define PUSH_IMM    "PUSH_IMM\n"
+#define ADD         "ADD\n"
+#define SUB         "SUB\n"
+#define MUL         "MUL\n"
+#define DIV         "DIV\n"
+#define AND         "AND\n"
+#define OR          "OR\n"
+#define XOR         "XOR\n"
+#define NOT         "NOT"
+#define LSHIFT      "LSHIFT\n"
+#define RSHIFT      "RSHIFT\n"
+#define POP_RES     "POP_RES\n"
+#define DONE        "DONE\n"
 
 /*
  * Define binary strings corresponding to each opcode we support.
@@ -100,8 +117,8 @@ int main(int argc, char *argv[]) {
         /*
          * "Parse" the source file.
          */
-        if (strcmp(line, "PUSH_IMM\n") == 0) {
-            printf("PUSH_IMM\n");
+        if (strcmp(line, PUSH_IMM) == 0) {
+            printf(PUSH_IMM);
 
             /*
              * Write the PUSH_IMM instruction itself.
@@ -121,41 +138,41 @@ int main(int argc, char *argv[]) {
             char *imm_str = imm_bin_str(strtoul(line, NULL, 10));
             instruction = strtol(imm_str, NULL, 2);
             free(imm_str);
-        } else if (strcmp(line, "ADD\n") == 0) {
-            printf("ADD\n");
+        } else if (strcmp(line, ADD) == 0) {
+            printf(ADD);
             instruction = strtol(ADD_STR, NULL, 2);
-        } else if (strcmp(line, "SUB\n") == 0) {
-            printf("SUB\n");
+        } else if (strcmp(line, SUB) == 0) {
+            printf(SUB);
             instruction = strtol(SUB_STR, NULL, 2);
-        } else if (strcmp(line, "MUL\n") == 0) {
-            printf("MUL\n");
+        } else if (strcmp(line, MUL) == 0) {
+            printf(MUL);
             instruction = strtol(MUL_STR, NULL, 2);
-        } else if (strcmp(line, "DIV\n") == 0) {
-            printf("DIV\n");
+        } else if (strcmp(line, DIV) == 0) {
+            printf(DIV);
             instruction = strtol(DIV_STR, NULL, 2);
-        } else if (strcmp(line, "AND\n") == 0) {
-            printf("AND\n");
+        } else if (strcmp(line, AND) == 0) {
+            printf(AND);
             instruction = strtol(AND_STR, NULL, 2);
-        } else if (strcmp(line, "OR\n") == 0) {
-            printf("OR\n");
+        } else if (strcmp(line, OR) == 0) {
+            printf(OR);
             instruction = strtol(OR_STR, NULL, 2);
-        } else if (strcmp(line, "XOR\n") == 0) {
-            printf("XOR\n");
+        } else if (strcmp(line, XOR) == 0) {
+            printf(XOR);
             instruction = strtol(XOR_STR, NULL, 2);
-        } else if (strcmp(line, "NOT\n") == 0) {
-            printf("NOT\n");
+        } else if (strcmp(line, NOT) == 0) {
+            printf(NOT);
             instruction = strtol(NOT_STR, NULL, 2);
-        } else if (strcmp(line, "LSHIFT\n") == 0) {
-            printf("LSHIFT\n");
+        } else if (strcmp(line, LSHIFT) == 0) {
+            printf(LSHIFT);
             instruction = strtol(LSHIFT_STR, NULL, 2);
-        } else if (strcmp(line, "RSHIFT\n") == 0) {
-            printf("RSHIFT\n");
+        } else if (strcmp(line, RSHIFT) == 0) {
+            printf(RSHIFT);
             instruction = strtol(RSHIFT_STR, NULL, 2);
-        } else if (strcmp(line, "POP_RES\n") == 0) {
-            printf("POP_RES\n");
+        } else if (strcmp(line, POP_RES) == 0) {
+            printf(POP_RES);
             instruction = strtol(POP_RES_STR, NULL, 2);
-        } else if (strcmp(line, "DONE\n") == 0) {
-            printf("DONE\n");
+        } else if (strcmp(line, DONE) == 0) {
+            printf(DONE);
             instruction = strtol(DONE_STR, NULL, 2);
         }
 

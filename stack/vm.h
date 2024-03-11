@@ -39,8 +39,6 @@ struct {
 
 /*
  * Define all the opcodes we recognize.
- *
- * TODO Need to synchronize this with the assembler.
  */
 typedef enum {
     PUSH_IMM,
