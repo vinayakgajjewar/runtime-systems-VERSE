@@ -1,14 +1,19 @@
 #ifndef VERSE_STACK_VM_H_
 #define VERSE_STACK_VM_H_
 
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 /*
  * Our runtime stack has 256 slots.
  */
 #define STACK_MAX 256
 
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
+/*
+ * We'll use this macro for direct threading dispatch.
+ */
+#define go_next goto *table[*vm.instruction_ptr]
 
 /*
  * TODO Fail gracefully if we try to pop a value that doesn't exist off the
@@ -165,6 +170,123 @@ void do_rshift() {
 
 void do_pop_res() {
     vm.result = stack_pop();
+}
+
+/*
+ * Direct threading dispatch using computed GOTO statements.
+ */
+result interpret_threaded_dispatch(uint8_t *bytecode) {
+    printf("Inside threaded dispatch\n");
+    vm.instruction_ptr = bytecode;
+
+    /*
+     * This is our lookup table of GOTO labels for each instruction. We can use
+     * the VM's instruction pointer to index into this table.
+     */
+    void *table[] = {
+            &&push_imm_label,
+            &&add_label,
+            &&sub_label,
+            &&mul_label,
+            &&div_label,
+            &&and_label,
+            &&or_label,
+            &&xor_label,
+            &&not_label,
+            &&lshift_label,
+            &&rshift_label,
+            &&pop_res_label,
+            &&done_label
+    };
+
+    /*
+     * Get the ball rolling.
+     */
+    go_next;
+
+    /*
+     * GOTO labels for each instruction.
+     *
+     * TODO
+     * I'm cheating by invoking the functions. I should also inline these to see
+     * the performance gains.
+     */
+
+    push_imm_label:
+    printf("Doing PUSH_IMM\n");
+    *vm.instruction_ptr++;
+    do_push_imm();
+    go_next;
+
+    add_label:
+    printf("Doing ADD\n");
+    *vm.instruction_ptr++;
+    do_add();
+    go_next;
+
+    sub_label:
+    printf("Doing SUB\n");
+    *vm.instruction_ptr++;
+    do_sub();
+    go_next;
+
+    mul_label:
+    printf("Doing MUL\n");
+    *vm.instruction_ptr++;
+    do_mul();
+    go_next;
+
+    div_label:
+    printf("Doing DIV\n");
+    *vm.instruction_ptr++;
+    do_div();
+    go_next;
+
+    and_label:
+    printf("Doing AND\n");
+    *vm.instruction_ptr++;
+    do_and();
+    go_next;
+
+    or_label:
+    printf("Doing OR\n");
+    *vm.instruction_ptr++;
+    do_or();
+    go_next;
+
+    xor_label:
+    printf("Doing XOR\n");
+    *vm.instruction_ptr++;
+    do_xor();
+    go_next;
+
+    not_label:
+    printf("Doing NOT\n");
+    *vm.instruction_ptr++;
+    do_not();
+    go_next;
+
+    lshift_label:
+    printf("Doing LSHIFT\n");
+    *vm.instruction_ptr++;
+    do_lshift();
+    go_next;
+
+    rshift_label:
+    printf("Doing RSHIFT\n");
+    *vm.instruction_ptr++;
+    do_rshift();
+    go_next;
+
+    pop_res_label:
+    printf("Doing POP_RES\n");
+    *vm.instruction_ptr++;
+    do_pop_res();
+    go_next;
+
+    done_label:
+    printf("Done!\n");
+    return SUCCESS;
 }
 
 /*

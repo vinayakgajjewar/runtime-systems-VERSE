@@ -69,6 +69,10 @@ int main(int argc, char *argv[]) {
         printf("Invoking function dispatch interpreter\n");
         fflush(stdout);
         r = interpret_function_dispatch(code);
+    } else if (strcmp(argv[2], "threaded") == 0) {
+        printf("Invoking direct threaded interpreter\n");
+        fflush(stdout);
+        r = interpret_threaded_dispatch(code);
     } else {
         fprintf(stderr, "Unrecognized dispatch type\n");
         fprintf(stderr, "Quitting...\n");

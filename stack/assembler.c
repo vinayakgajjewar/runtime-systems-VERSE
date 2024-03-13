@@ -27,7 +27,7 @@
 #define AND         "AND\n"
 #define OR          "OR\n"
 #define XOR         "XOR\n"
-#define NOT         "NOT"
+#define NOT         "NOT\n"
 #define LSHIFT      "LSHIFT\n"
 #define RSHIFT      "RSHIFT\n"
 #define POP_RES     "POP_RES\n"
