@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define BYTE_LEN 8
 #define USAGE_STR "Usage: ./reg-assemble <source> <dest>\n"
 
 /*
@@ -10,6 +11,31 @@
  *
  * TODO
  */
+#define LOAD_IMM_STR    "LOAD_IMM\n"
+#define ADD_STR         "ADD\n"
+#define SUB_STR         "SUB\n"
+#define MUL_STR         "MUL\n"
+#define DIV_STR         "DIV\n"
+#define MOV_RES_STR     "MOV_RES\n"
+#define DONE_STR        "DONE\n"
+
+/*
+ * Define a helper function for converting immediate values into binary strings.
+ */
+char *imm_bin_str(uint8_t imm) {
+    char *bin_str = (char *) malloc(BYTE_LEN + 1);
+    if (bin_str == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        fflush(stderr);
+        exit(EXIT_FAILURE);
+    }
+    for (int i = BYTE_LEN - 1; i >= 0; i--) {
+        bin_str[i] = (imm & 1) ? '1' : '0';
+        imm >>= 1;
+    }
+    bin_str[BYTE_LEN] = '\0';
+    return bin_str;
+}
 
 /*
  * Convert a human-readable source file into bytecode.
@@ -58,6 +84,26 @@ int main(int argc, char *argv[]) {
          * Instructions in this language are 2 bytes long.
          */
         uint16_t instruction;
+
+        /*
+         * "Parse" the source file. We'll require that each token is on its own
+         * line just to make our lives easier.
+         */
+        if (strcmp(line, LOAD_IMM_STR) == 0) {
+            printf(LOAD_IMM_STR);
+        } else if (strcmp(line, ADD_STR) == 0) {
+            printf(ADD_STR);
+        } else if (strcmp(line, SUB_STR) == 0) {
+            printf(SUB_STR);
+        } else if (strcmp(line, MUL_STR) == 0) {
+            printf(MUL_STR);
+        } else if (strcmp(line, DIV_STR) == 0) {
+            printf(DIV_STR);
+        } else if (strcmp(line, MOV_RES_STR) == 0) {
+            printf(MOV_RES_STR);
+        } else if (strcmp(line, DONE_STR) == 0) {
+            printf(DONE_STR);
+        }
     }
 
     /*

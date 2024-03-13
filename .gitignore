@@ -5,3 +5,4 @@ reg-vm
 stack-vm
 test-encode
 stack-assemble
+reg-assemble
