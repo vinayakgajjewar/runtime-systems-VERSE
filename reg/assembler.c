@@ -20,6 +20,21 @@
 #define DONE_STR        "DONE\n"
 
 /*
+ * Define binary strings corresponding to each opcode we recognize.
+ *
+ * TODO
+ * This actually might be a bit more complicated because of encoding operands. I
+ * guess the opcode is the first 4 bits?
+ */
+#define LOAD_IMM_BIN    "0000"
+#define ADD_BIN         "0001"
+#define SUB_BIN         "0010"
+#define MUL_BIN         "0011"
+#define DIV_BIN         "0100"
+#define MOVE_RES_BIN    "0101"
+#define DONE_BIN        "0110"
+
+/*
  * Define a helper function for converting immediate values into binary strings.
  */
 char *imm_bin_str(uint8_t imm) {
@@ -103,7 +118,16 @@ int main(int argc, char *argv[]) {
             printf(MOV_RES_STR);
         } else if (strcmp(line, DONE_STR) == 0) {
             printf(DONE_STR);
+        } else {
+            fprintf(stderr, "Cannot parse line\n");
+            fflush(stderr);
+            exit(EXIT_FAILURE);
         }
+
+        /*
+         * Write the instruction into the destination file.
+         */
+        fwrite(&instruction, sizeof(instruction), 1, dest_f);
     }
 
     /*

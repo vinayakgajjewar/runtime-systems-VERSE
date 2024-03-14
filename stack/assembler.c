@@ -174,6 +174,10 @@ int main(int argc, char *argv[]) {
         } else if (strcmp(line, DONE) == 0) {
             printf(DONE);
             instruction = strtol(DONE_STR, NULL, 2);
+        } else {
+            fprintf(stderr, "Cannot parse line\n");
+            fflush(stderr);
+            exit(EXIT_FAILURE);
         }
 
         /*

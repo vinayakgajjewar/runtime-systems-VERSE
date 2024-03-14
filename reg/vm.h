@@ -28,6 +28,14 @@
 #define DECODE_R2(instruction)  (instruction & 0x000F)
 #define DECODE_IMM(instruction) (instruction & 0x00FF)
 
+/*
+ * Helpful macro for direct threading dispatch.
+ *
+ * TODO
+ * Might have to modify this.
+ */
+#define go_next goto *table[*vm.instruction_ptr]
+
 struct {
     uint16_t *instruction_ptr;
     uint64_t regs[NUM_REGS];
@@ -59,6 +67,152 @@ typedef enum result {
 void reset_vm() {
     printf("Resetting VM state\n");
     vm = (typeof(vm)) {NULL};
+}
+
+/*
+ * TODO
+ * Remove redundant parameters.
+ */
+
+void do_load_imm(uint8_t op, uint8_t r0, uint8_t r1, uint8_t r2, uint8_t imm) {
+    vm.regs[r0] = imm;
+}
+
+void do_add(uint8_t op, uint8_t r0, uint8_t r1, uint8_t r2, uint8_t imm) {
+    vm.regs[r2] = vm.regs[r0] + vm.regs[r1];
+}
+
+void do_sub(uint8_t op, uint8_t r0, uint8_t r1, uint8_t r2, uint8_t imm) {
+    vm.regs[r2] = vm.regs[r0] - vm.regs[r1];
+}
+
+void do_mul(uint8_t op, uint8_t r0, uint8_t r1, uint8_t r2, uint8_t imm) {
+    vm.regs[r2] = vm.regs[r0] * vm.regs[r1];
+}
+
+void do_div(uint8_t op, uint8_t r0, uint8_t r1, uint8_t r2, uint8_t imm) {
+    if (vm.regs[r1] == 0) {
+        printf("Cannot divide by zero\n");
+        exit(EXIT_FAILURE);
+    }
+    vm.regs[r2] = vm.regs[r0] / vm.regs[r1];
+}
+
+void do_mov_res(uint8_t op, uint8_t r0, uint8_t r1, uint8_t r2, uint8_t imm) {
+    vm.result = vm.regs[r0];
+}
+
+/*
+ * Direct threading dispatch using computed GOTO statements.
+ */
+result threaded_interpret(uint16_t *bytecode) {
+    printf("Inside threaded dispatch\n");
+
+    /*
+     * Set the instruction pointer to the start of the code array.
+     */
+    vm.instruction_ptr = bytecode;
+
+    /*
+     * This is our lookup table of GOTO labels for each instruction. We can use
+     * the opcode to index into this table.
+     */
+    void *table[] = {
+            &&load_imm_label,
+            &&add_label,
+            &&sub_label,
+            &&mul_label,
+            &&div_label,
+            &&mov_res_label
+    };
+
+    /*
+     * Define the pieces of our instructions.
+     */
+    uint8_t op, r0, r1, r2, imm;
+
+    /*
+     * Fetch the next instruction and decode its arguments.
+     */
+    uint16_t instruction = *vm.instruction_ptr;
+    op = DECODE_OP(instruction);
+    r0 = DECODE_R0(instruction);
+    r1 = DECODE_R1(instruction);
+    r2 = DECODE_R2(instruction);
+    imm = DECODE_IMM(instruction);
+
+    /*
+     * Get the ball rolling.
+     */
+    go_next;
+
+    /*
+     * GOTO labels for each instruction.
+     */
+
+    load_imm_label:
+    instruction = *vm.instruction_ptr++;
+    op = DECODE_OP(instruction);
+    r0 = DECODE_R0(instruction);
+    r1 = DECODE_R1(instruction);
+    r2 = DECODE_R2(instruction);
+    imm = DECODE_IMM(instruction);
+    do_load_imm(op, r0, r1, r2, imm);
+    go_next;
+
+    add_label:
+    instruction = *vm.instruction_ptr++;
+    op = DECODE_OP(instruction);
+    r0 = DECODE_R0(instruction);
+    r1 = DECODE_R1(instruction);
+    r2 = DECODE_R2(instruction);
+    imm = DECODE_IMM(instruction);
+    do_add(op, r0, r1, r2, imm);
+    go_next;
+
+    sub_label:
+    instruction = *vm.instruction_ptr++;
+    op = DECODE_OP(instruction);
+    r0 = DECODE_R0(instruction);
+    r1 = DECODE_R1(instruction);
+    r2 = DECODE_R2(instruction);
+    imm = DECODE_IMM(instruction);
+    do_sub(op, r0, r1, r2, imm);
+    go_next;
+
+    mul_label:
+    instruction = *vm.instruction_ptr++;
+    op = DECODE_OP(instruction);
+    r0 = DECODE_R0(instruction);
+    r1 = DECODE_R1(instruction);
+    r2 = DECODE_R2(instruction);
+    imm = DECODE_IMM(instruction);
+    do_mul(op, r0, r1, r2, imm);
+    go_next;
+
+    div_label:
+    instruction = *vm.instruction_ptr++;
+    op = DECODE_OP(instruction);
+    r0 = DECODE_R0(instruction);
+    r1 = DECODE_R1(instruction);
+    r2 = DECODE_R2(instruction);
+    imm = DECODE_IMM(instruction);
+    do_div(op, r0, r1, r2, imm);
+    go_next;
+
+    mov_res_label:
+    instruction = *vm.instruction_ptr++;
+    op = DECODE_OP(instruction);
+    r0 = DECODE_R0(instruction);
+    r1 = DECODE_R1(instruction);
+    r2 = DECODE_R2(instruction);
+    imm = DECODE_IMM(instruction);
+    do_mov_res(op, r0, r1, r2, imm);
+    go_next;
+
+    done_label:
+    printf("Done!\n");
+    return SUCCESS;
 }
 
 /*
