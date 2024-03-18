@@ -89,7 +89,6 @@ void reset_vm() {
  */
 
 void stack_push(uint64_t val) {
-    printf("Pushing %llu onto the stack\n", val);
     *vm.stack_top = val;
     vm.stack_top++;
 }
@@ -97,7 +96,6 @@ void stack_push(uint64_t val) {
 uint64_t stack_pop() {
     vm.stack_top--;
     uint64_t val = *vm.stack_top;
-    printf("Popped %llu off the stack\n", val);
     return val;
 }
 
@@ -194,7 +192,6 @@ void do_pop_res() {
  * Direct threading dispatch using computed GOTO statements.
  */
 result interpret_threaded_dispatch(uint8_t *bytecode) {
-    printf("Inside threaded dispatch\n");
     vm.instruction_ptr = bytecode;
 
     /*
@@ -235,43 +232,36 @@ result interpret_threaded_dispatch(uint8_t *bytecode) {
      */
 
     push_imm_label:
-    printf("Doing PUSH_IMM\n");
     //do_push_imm();
     imm = *(vm.instruction_ptr + 1);
     vm.instruction_ptr++;
-    printf("Pushing %llu onto the stack\n", imm);
     *vm.stack_top = imm;
     vm.stack_top++;
     //vm.instruction_ptr++;
     go_next;
 
     add_label:
-    printf("Doing ADD\n");
     //do_add();
     vm.stack_top--;
     op2 = *vm.stack_top;
     vm.stack_top--;
     op1 = *vm.stack_top;
-    printf("Adding %llu and %llu\n", op1, op2);
     *vm.stack_top = op1 + op2;
     vm.stack_top++;
     //vm.instruction_ptr++;
     go_next;
 
     sub_label:
-    printf("Doing SUB\n");
     //do_sub();
     vm.stack_top--;
     op2 = *vm.stack_top;
     vm.stack_top--;
     op1 = *vm.stack_top;
     *vm.stack_top = op1 - op2;
-    printf("Subtracting %llu and %llu\n", op1, op2);
     vm.stack_top++;
     go_next;
 
     mul_label:
-    printf("Doing MUL\n");
     //do_mul();
     vm.stack_top--;
     op2 = *vm.stack_top;
@@ -282,7 +272,6 @@ result interpret_threaded_dispatch(uint8_t *bytecode) {
     go_next;
 
     div_label:
-    printf("Doing DIV\n");
     //do_div();
     vm.stack_top--;
     op2 = *vm.stack_top;
@@ -296,7 +285,6 @@ result interpret_threaded_dispatch(uint8_t *bytecode) {
     go_next;
 
     and_label:
-    printf("Doing AND\n");
     //do_and();
     vm.stack_top--;
     op2 = *vm.stack_top;
@@ -307,7 +295,6 @@ result interpret_threaded_dispatch(uint8_t *bytecode) {
     go_next;
 
     or_label:
-    printf("Doing OR\n");
     //do_or();
     vm.stack_top--;
     op2 = *vm.stack_top;
@@ -318,7 +305,6 @@ result interpret_threaded_dispatch(uint8_t *bytecode) {
     go_next;
 
     xor_label:
-    printf("Doing XOR\n");
     //do_xor();
     vm.stack_top--;
     op2 = *vm.stack_top;
@@ -328,7 +314,6 @@ result interpret_threaded_dispatch(uint8_t *bytecode) {
     go_next;
 
     not_label:
-    printf("Doing NOT\n");
     // do_not();
     vm.stack_top--;
     *vm.stack_top = ~(*vm.stack_top);
@@ -336,7 +321,6 @@ result interpret_threaded_dispatch(uint8_t *bytecode) {
     go_next;
 
     lshift_label:
-    printf("Doing LSHIFT\n");
     //do_lshift();
     vm.stack_top--;
     op2 = *vm.stack_top;
@@ -347,7 +331,6 @@ result interpret_threaded_dispatch(uint8_t *bytecode) {
     go_next;
 
     rshift_label:
-    printf("Doing RSHIFT\n");
     //do_rshift();
     vm.stack_top--;
     op2 = *vm.stack_top;
@@ -358,12 +341,8 @@ result interpret_threaded_dispatch(uint8_t *bytecode) {
     go_next;
 
     jif_label:
-    printf("Doing JIF\n");
-    printf("New location is %d\n", *(vm.instruction_ptr + 1));
     //do_jif(bytecode);
-    printf("Comparing on %llu\n", *(vm.stack_top - 1));
     if (*(vm.stack_top - 1) != 0) {
-        printf("Jumping...\n");
 
         /*
          * This is ugly and I should rewrite it but it works.
@@ -371,13 +350,11 @@ result interpret_threaded_dispatch(uint8_t *bytecode) {
          */
         vm.instruction_ptr = bytecode + (*(vm.instruction_ptr + 1)) - 2;
     } else {
-        printf("Falling through\n");
         vm.instruction_ptr++;
     }
     go_next;
 
     pop_res_label:
-    printf("Doing POP_RES\n");
     //do_pop_res();
     vm.stack_top--;
     vm.result = *vm.stack_top;
@@ -398,81 +375,55 @@ result interpret_function_dispatch(uint8_t *bytecode) {
         uint8_t instruction = *vm.instruction_ptr++;
         switch (instruction) {
             case PUSH_IMM: {
-                printf("Doing PUSH_IMM\n");
                 do_push_imm();
-                printf("Done with PUSH_IMM\n");
                 break;
             }
             case ADD: {
-                printf("Doing ADD\n");
                 do_add();
-                printf("Done with ADD\n");
                 break;
             }
             case SUB: {
-                printf("Doing SUB\n");
                 do_sub();
-                printf("Done with SUB\n");
                 break;
             }
             case MUL: {
-                printf("Doing MUL\n");
                 do_mul();
-                printf("Done with MUL\n");
                 break;
             }
             case DIV: {
-                printf("Doing DIV\n");
                 do_div();
-                printf("Done with DIV\n");
                 break;
             }
             case AND: {
-                printf("Doing AND\n");
                 do_and();
-                printf("Done with AND\n");
                 break;
             }
             case OR: {
-                printf("Doing OR\n");
                 do_or();
-                printf("Done with OR\n");
                 break;
             }
             case XOR: {
-                printf("Doing XOR\n");
                 do_xor();
-                printf("Done with XOR\n");
                 break;
             }
             case NOT: {
-                printf("Doing NOT\n");
                 do_not();
-                printf("Done with NOT\n");
                 break;
             }
             case LSHIFT: {
-                printf("Doing LSHIFT\n");
                 do_lshift();
-                printf("Done with LSHIFT\n");
                 break;
             }
             case RSHIFT: {
-                printf("Doing RSHIFT\n");
                 do_rshift();
-                printf("Done with RSHIFT\n");
                 break;
             }
             case JIF: {
-                printf("Doing JIF\n");
                 do_jif(bytecode);
-                printf("Done with JIF\n");
                 break;
             }
             case POP_RES: {
-                printf("Doing POP_RES\n");
                 do_pop_res();
-                printf("Done with POP_RES\n");
                 break;
             }
             case DONE: {
@@ -492,21 +443,16 @@ result interpret_function_dispatch(uint8_t *bytecode) {
  * Interpreter loop without any function calls.
  */
 result interpret_inline(uint8_t *bytecode) {
-    printf("Inside inline dispatch\n");
     vm.instruction_ptr = bytecode;
     for (;;) {
         uint8_t instruction = *vm.instruction_ptr++;
         switch (instruction) {
             case PUSH_IMM: {
-                printf("Doing PUSH_IMM\n");
-                uint64_t imm = *vm.instruction_ptr++;
-                printf("Pushing %llu onto the stack\n", imm);
-                *vm.stack_top = imm;
+                *vm.stack_top = *vm.instruction_ptr++;
                 vm.stack_top++;
                 break;
             }
             case ADD: {
-                printf("Doing ADD\n");
                 vm.stack_top--;
                 uint64_t op2 = *vm.stack_top;
                 vm.stack_top--;
