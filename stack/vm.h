@@ -13,7 +13,7 @@
 /*
  * We'll use this macro for direct threading dispatch.
  */
-#define go_next goto *table[*vm.instruction_ptr]
+#define go_next vm.instruction_ptr++; goto *table[*vm.instruction_ptr]
 
 /*
  * TODO Fail gracefully if we try to pop a value that doesn't exist off the
@@ -24,6 +24,10 @@
  * This struct encapsulates the state of our virtual machine.
  */
 struct {
+
+    /*
+     * Pointer to the instruction we're currently executing.
+     */
     uint8_t *instruction_ptr;
 
     /*
@@ -71,6 +75,9 @@ typedef enum result {
     ERR_UNKNOWN_OPCODE
 } result;
 
+/*
+ * This doesn't do much right now.
+ */
 void reset_vm() {
     printf("Resetting VM state\n");
     vm.stack_top = vm.stack;
@@ -169,7 +176,14 @@ void do_rshift() {
     stack_push(op1 >> op2);
 }
 
-void do_jif() {}
+void do_jif(uint8_t *bytecode) {
+    if (*(vm.stack_top - 1) != 0) {
+        uint8_t loc = *vm.instruction_ptr++;
+        vm.instruction_ptr = bytecode + loc - 1;
+    } else {
+        vm.instruction_ptr++;
+    }
+}
 
 void do_pop_res() {
     vm.result = stack_pop();
@@ -181,6 +195,13 @@ void do_pop_res() {
 result interpret_threaded_dispatch(uint8_t *bytecode) {
     printf("Inside threaded dispatch\n");
     vm.instruction_ptr = bytecode;
+
+    /*
+     * e TODO
+     */
+    uint64_t op1;
+    uint64_t op2;
+    uint64_t imm;
 
     /*
      * This is our lookup table of GOTO labels for each instruction. We can use
@@ -206,92 +227,151 @@ result interpret_threaded_dispatch(uint8_t *bytecode) {
     /*
      * Get the ball rolling.
      */
-    go_next;
+    goto *table[*vm.instruction_ptr];
 
     /*
      * GOTO labels for each instruction.
-     *
-     * TODO
-     * I'm cheating by invoking the functions. I should also inline these to see
-     * the performance gains.
      */
 
     push_imm_label:
     printf("Doing PUSH_IMM\n");
-    (*vm.instruction_ptr)++;
-    do_push_imm();
+    //do_push_imm();
+    imm = *(vm.instruction_ptr + 1);
+    vm.instruction_ptr++;
+    printf("Pushing %llu onto the stack\n", imm);
+    *vm.stack_top = imm;
+    vm.stack_top++;
+    //vm.instruction_ptr++;
     go_next;
 
     add_label:
     printf("Doing ADD\n");
-    (*vm.instruction_ptr)++;
-    do_add();
+    //do_add();
+    vm.stack_top--;
+    op2 = *vm.stack_top;
+    vm.stack_top--;
+    op1 = *vm.stack_top;
+    printf("Adding %llu and %llu\n", op1, op2);
+    *vm.stack_top = op1 + op2;
+    vm.stack_top++;
+    //vm.instruction_ptr++;
     go_next;
 
     sub_label:
     printf("Doing SUB\n");
-    (*vm.instruction_ptr)++;
-    do_sub();
+    //do_sub();
+    vm.stack_top--;
+    op2 = *vm.stack_top;
+    vm.stack_top--;
+    op1 = *vm.stack_top;
+    *vm.stack_top = op1 - op2;
+    printf("Subtracting %llu and %llu\n", op1, op2);
+    vm.stack_top++;
     go_next;
 
     mul_label:
     printf("Doing MUL\n");
-    (*vm.instruction_ptr)++;
-    do_mul();
+    //do_mul();
+    vm.stack_top--;
+    op2 = *vm.stack_top;
+    vm.stack_top--;
+    op1 = *vm.stack_top;
+    *vm.stack_top = op1 * op2;
+    vm.stack_top++;
     go_next;
 
     div_label:
     printf("Doing DIV\n");
-    (*vm.instruction_ptr)++;
-    do_div();
+    //do_div();
+    vm.stack_top--;
+    op2 = *vm.stack_top;
+    vm.stack_top--;
+    op1 = *vm.stack_top;
+    if (op2 == 0) {
+        return ERR_DIV_ZERO;
+    }
+    *vm.stack_top = op1 / op2;
+    vm.stack_top++;
     go_next;
 
     and_label:
     printf("Doing AND\n");
-    (*vm.instruction_ptr)++;
-    do_and();
+    //do_and();
+    vm.stack_top--;
+    op2 = *vm.stack_top;
+    vm.stack_top--;
+    op1 = *vm.stack_top;
+    *vm.stack_top = op1 & op2;
+    vm.stack_top++;
     go_next;
 
     or_label:
     printf("Doing OR\n");
-    (*vm.instruction_ptr)++;
-    do_or();
+    //do_or();
+    vm.stack_top--;
+    op2 = *vm.stack_top;
+    vm.stack_top--;
+    op1 = *vm.stack_top;
+    *vm.stack_top = op1 | op2;
+    vm.stack_top++;
     go_next;
 
     xor_label:
     printf("Doing XOR\n");
-    (*vm.instruction_ptr)++;
-    do_xor();
+    //do_xor();
+    vm.stack_top--;
+    op2 = *vm.stack_top;
+    vm.stack_top--;
+    *vm.stack_top = op1 ^ op2;
+    vm.stack_top++;
     go_next;
 
     not_label:
     printf("Doing NOT\n");
-    (*vm.instruction_ptr)++;
-    do_not();
+   // do_not();
+   vm.stack_top--;
+   *vm.stack_top = ~(*vm.stack_top);
+   vm.stack_top++;
     go_next;
 
     lshift_label:
     printf("Doing LSHIFT\n");
-    (*vm.instruction_ptr)++;
-    do_lshift();
+    //do_lshift();
+    vm.stack_top--;
+    op2 = *vm.stack_top;
+    vm.stack_top--;
+    op1 = *vm.stack_top;
+    *vm.stack_top = op1 << op2;
+    vm.stack_top++;
     go_next;
 
     rshift_label:
     printf("Doing RSHIFT\n");
-    (*vm.instruction_ptr)++;
-    do_rshift();
+    //do_rshift();
+    vm.stack_top--;
+    op2 = *vm.stack_top;
+    vm.stack_top--;
+    op1 = *vm.stack_top;
+    *vm.stack_top = op1 >> op2;
+    vm.stack_top++;
     go_next;
 
     jif_label:
     printf("Doing JIF\n");
-    (*vm.instruction_ptr)++;
-    do_jif();
+    //do_jif(bytecode);
+    if (*(vm.stack_top - 1) != 0) {
+        vm.instruction_ptr = bytecode + (*vm.instruction_ptr++) - 1;
+    } else {
+        vm.instruction_ptr++;
+    }
     go_next;
 
     pop_res_label:
     printf("Doing POP_RES\n");
-    (*vm.instruction_ptr)++;
-    do_pop_res();
+    //do_pop_res();
+    vm.stack_top--;
+    vm.result = *vm.stack_top;
+    //vm.instruction_ptr++;
     go_next;
 
     done_label:
@@ -375,7 +455,7 @@ result interpret_function_dispatch(uint8_t *bytecode) {
             }
             case JIF: {
                 printf("Doing JIF\n");
-                do_jif();
+                do_jif(bytecode);
                 printf("Done with JIF\n");
                 break;
             }
@@ -522,6 +602,10 @@ result interpret_inline(uint8_t *bytecode) {
             }
             case JIF: {
                 printf("Doing JIF\n");
+
+                /*
+                 * Peek at the top of the stack to determine if we jump or not.
+                 */
                 if (*(vm.stack_top - 1) != 0) {
                     printf("Jumping...\n");
                     uint8_t loc = *vm.instruction_ptr++;

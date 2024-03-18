@@ -8,7 +8,12 @@
 #include <string.h>
 
 #define BYTE_LEN 8
-#define USAGE_STR "Usage: ./stack-assemble <source> <dest>\n"
+
+/*
+ * The pinnacle of UX design.
+ */
+#define USAGE_STR       "Usage: ./stack-assemble <source> <dest>\n"
+#define ERROR_STRING    "Assembler error\n"
 
 /*
  * TODO
@@ -58,7 +63,7 @@
 char *imm_bin_str(uint8_t imm) {
     char *bin_str = (char *) malloc(BYTE_LEN + 1);
     if (bin_str == NULL) {
-        fprintf(stderr, "Memory allocation failed\n");
+        fprintf(stderr, ERROR_STRING);
         fflush(stderr);
         exit(EXIT_FAILURE);
     }
