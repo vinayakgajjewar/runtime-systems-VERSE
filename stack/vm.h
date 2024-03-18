@@ -524,7 +524,7 @@ result interpret_inline(uint8_t *bytecode) {
                 printf("Doing JIF\n");
                 if (*(vm.stack_top - 1) != 0) {
                     printf("Jumping...\n");
-                    uint8_t loc = (*vm.instruction_ptr)++;
+                    uint8_t loc = *vm.instruction_ptr++;
                     printf("loc=%d\n", loc);
 
                     /*
@@ -534,6 +534,7 @@ result interpret_inline(uint8_t *bytecode) {
                     vm.instruction_ptr = bytecode + loc - 1;
                 } else {
                     printf("Falling through...\n");
+                    vm.instruction_ptr++;
                 }
                 break;
             }
