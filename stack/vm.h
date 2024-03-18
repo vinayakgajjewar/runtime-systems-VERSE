@@ -11,7 +11,8 @@
 #define STACK_MAX 256
 
 /*
- * We'll use this macro for direct threading dispatch.
+ * We'll use this macro for direct threading dispatch. Bump the instruction
+ * pointer and go to the next instruction label.
  */
 #define go_next vm.instruction_ptr++; goto *table[*vm.instruction_ptr]
 
@@ -328,10 +329,10 @@ result interpret_threaded_dispatch(uint8_t *bytecode) {
 
     not_label:
     printf("Doing NOT\n");
-   // do_not();
-   vm.stack_top--;
-   *vm.stack_top = ~(*vm.stack_top);
-   vm.stack_top++;
+    // do_not();
+    vm.stack_top--;
+    *vm.stack_top = ~(*vm.stack_top);
+    vm.stack_top++;
     go_next;
 
     lshift_label:
@@ -358,10 +359,19 @@ result interpret_threaded_dispatch(uint8_t *bytecode) {
 
     jif_label:
     printf("Doing JIF\n");
+    printf("New location is %d\n", *(vm.instruction_ptr + 1));
     //do_jif(bytecode);
+    printf("Comparing on %llu\n", *(vm.stack_top - 1));
     if (*(vm.stack_top - 1) != 0) {
-        vm.instruction_ptr = bytecode + (*vm.instruction_ptr++) - 1;
+        printf("Jumping...\n");
+
+        /*
+         * This is ugly and I should rewrite it but it works.
+         * TODO
+         */
+        vm.instruction_ptr = bytecode + (*(vm.instruction_ptr + 1)) - 2;
     } else {
+        printf("Falling through\n");
         vm.instruction_ptr++;
     }
     go_next;
