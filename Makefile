@@ -1,12 +1,12 @@
 CC = gcc
 CFLAGS = -Wall -std=gnu17 -O0
-EXECUTABLES = reg-vm test-encode stack-vm stack-assemble reg-assemble
+EXECUTABLES = reg-vm test-encode stckvm stacka reg-assemble
 
-stack-vm: stack/vm.h stack/vm.c
-	$(CC) $(CFLAGS) -o stack-vm stack/vm.c
+stckvm: stack/vm.h stack/vm.c
+	$(CC) $(CFLAGS) -o stckvm stack/vm.c
 
-stack-assemble: stack/assembler.c
-	$(CC) $(CFLAGS) -o stack-assemble stack/assembler.c
+stacka: stack/assembler.c
+	$(CC) $(CFLAGS) -o stacka stack/assembler.c
 
 reg-vm: reg/vm.h reg/vm.c
 	$(CC) $(CFLAGS) -o reg-vm reg/vm.c

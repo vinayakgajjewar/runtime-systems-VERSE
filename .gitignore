@@ -2,7 +2,7 @@
 reg-vm.dSYM/
 stack-vm.dSYM/
 reg-vm
-stack-vm
+stckvm
 test-encode
-stack-assemble
+stacka
 reg-assemble

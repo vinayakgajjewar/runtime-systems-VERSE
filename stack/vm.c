@@ -11,7 +11,7 @@
  */
 #define MAX_SIZE 100
 
-#define USAGE_STR "Usage: ./stack-vm <bytecode file> <dispatch type>\n"
+#define USAGE_STR "Usage: ./stckvm <bytecode file> <dispatch type>\n"
 
 int main(int argc, char *argv[]) {
 

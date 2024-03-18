@@ -12,7 +12,7 @@
 /*
  * The pinnacle of UX design.
  */
-#define USAGE_STR       "Usage: ./stack-assemble <source> <dest>\n"
+#define USAGE_STR       "Usage: ./stacka <source> <dest>\n"
 #define ERROR_STRING    "Assembler error\n"
 
 /*
