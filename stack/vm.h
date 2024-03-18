@@ -57,6 +57,7 @@ typedef enum {
     NOT,
     LSHIFT,
     RSHIFT,
+    JIF,
     POP_RES,
     DONE
 } opcode;
@@ -168,6 +169,8 @@ void do_rshift() {
     stack_push(op1 >> op2);
 }
 
+void do_jif() {}
+
 void do_pop_res() {
     vm.result = stack_pop();
 }
@@ -195,6 +198,7 @@ result interpret_threaded_dispatch(uint8_t *bytecode) {
             &&not_label,
             &&lshift_label,
             &&rshift_label,
+            &&jif_label,
             &&pop_res_label,
             &&done_label
     };
@@ -214,73 +218,79 @@ result interpret_threaded_dispatch(uint8_t *bytecode) {
 
     push_imm_label:
     printf("Doing PUSH_IMM\n");
-    *vm.instruction_ptr++;
+    (*vm.instruction_ptr)++;
     do_push_imm();
     go_next;
 
     add_label:
     printf("Doing ADD\n");
-    *vm.instruction_ptr++;
+    (*vm.instruction_ptr)++;
     do_add();
     go_next;
 
     sub_label:
     printf("Doing SUB\n");
-    *vm.instruction_ptr++;
+    (*vm.instruction_ptr)++;
     do_sub();
     go_next;
 
     mul_label:
     printf("Doing MUL\n");
-    *vm.instruction_ptr++;
+    (*vm.instruction_ptr)++;
     do_mul();
     go_next;
 
     div_label:
     printf("Doing DIV\n");
-    *vm.instruction_ptr++;
+    (*vm.instruction_ptr)++;
     do_div();
     go_next;
 
     and_label:
     printf("Doing AND\n");
-    *vm.instruction_ptr++;
+    (*vm.instruction_ptr)++;
     do_and();
     go_next;
 
     or_label:
     printf("Doing OR\n");
-    *vm.instruction_ptr++;
+    (*vm.instruction_ptr)++;
     do_or();
     go_next;
 
     xor_label:
     printf("Doing XOR\n");
-    *vm.instruction_ptr++;
+    (*vm.instruction_ptr)++;
     do_xor();
     go_next;
 
     not_label:
     printf("Doing NOT\n");
-    *vm.instruction_ptr++;
+    (*vm.instruction_ptr)++;
     do_not();
     go_next;
 
     lshift_label:
     printf("Doing LSHIFT\n");
-    *vm.instruction_ptr++;
+    (*vm.instruction_ptr)++;
     do_lshift();
     go_next;
 
     rshift_label:
     printf("Doing RSHIFT\n");
-    *vm.instruction_ptr++;
+    (*vm.instruction_ptr)++;
     do_rshift();
+    go_next;
+
+    jif_label:
+    printf("Doing JIF\n");
+    (*vm.instruction_ptr)++;
+    do_jif();
     go_next;
 
     pop_res_label:
     printf("Doing POP_RES\n");
-    *vm.instruction_ptr++;
+    (*vm.instruction_ptr)++;
     do_pop_res();
     go_next;
 
@@ -363,6 +373,12 @@ result interpret_function_dispatch(uint8_t *bytecode) {
                 printf("Done with RSHIFT\n");
                 break;
             }
+            case JIF: {
+                printf("Doing JIF\n");
+                do_jif();
+                printf("Done with JIF\n");
+                break;
+            }
             case POP_RES: {
                 printf("Doing POP_RES\n");
                 do_pop_res();
@@ -392,12 +408,15 @@ result interpret_inline(uint8_t *bytecode) {
         uint8_t instruction = *vm.instruction_ptr++;
         switch (instruction) {
             case PUSH_IMM: {
-                uint8_t arg = *vm.instruction_ptr++;
-                *vm.stack_top = arg;
+                printf("Doing PUSH_IMM\n");
+                uint64_t imm = *vm.instruction_ptr++;
+                printf("Pushing %llu onto the stack\n", imm);
+                *vm.stack_top = imm;
                 vm.stack_top++;
                 break;
             }
             case ADD: {
+                printf("Doing ADD\n");
                 vm.stack_top--;
                 uint64_t op2 = *vm.stack_top;
                 vm.stack_top--;
@@ -407,15 +426,18 @@ result interpret_inline(uint8_t *bytecode) {
                 break;
             }
             case SUB: {
+                printf("Doing SUB\n");
                 vm.stack_top--;
                 uint64_t op2 = *vm.stack_top;
                 vm.stack_top--;
                 uint64_t op1 = *vm.stack_top;
+                printf("Doing %llu - %llu\n", op1, op2);
                 *vm.stack_top = op1 - op2;
                 vm.stack_top++;
                 break;
             }
             case MUL: {
+                printf("Doing MUL\n");
                 vm.stack_top--;
                 uint64_t op2 = *vm.stack_top;
                 vm.stack_top--;
@@ -425,6 +447,7 @@ result interpret_inline(uint8_t *bytecode) {
                 break;
             }
             case DIV: {
+                printf("Doing DIV\n");
                 vm.stack_top--;
                 uint64_t op2 = *vm.stack_top;
                 vm.stack_top--;
@@ -441,6 +464,7 @@ result interpret_inline(uint8_t *bytecode) {
                 break;
             }
             case AND: {
+                printf("Doing AND\n");
                 vm.stack_top--;
                 uint64_t op2 = *vm.stack_top;
                 vm.stack_top--;
@@ -450,6 +474,7 @@ result interpret_inline(uint8_t *bytecode) {
                 break;
             }
             case OR: {
+                printf("Doing OR\n");
                 vm.stack_top--;
                 uint64_t op2 = *vm.stack_top;
                 vm.stack_top--;
@@ -459,6 +484,7 @@ result interpret_inline(uint8_t *bytecode) {
                 break;
             }
             case XOR: {
+                printf("Doing XOR\n");
                 vm.stack_top--;
                 uint64_t op2 = *vm.stack_top;
                 vm.stack_top--;
@@ -468,12 +494,14 @@ result interpret_inline(uint8_t *bytecode) {
                 break;
             }
             case NOT: {
+                printf("Doing NOT\n");
                 vm.stack_top--;
                 *vm.stack_top = ~(*vm.stack_top);
                 vm.stack_top++;
                 break;
             }
             case LSHIFT: {
+                printf("Doing LSHIFT\n");
                 vm.stack_top--;
                 uint64_t op2 = *vm.stack_top;
                 vm.stack_top--;
@@ -483,6 +511,7 @@ result interpret_inline(uint8_t *bytecode) {
                 break;
             }
             case RSHIFT: {
+                printf("Doing RSHIFT\n");
                 vm.stack_top--;
                 uint64_t op2 = *vm.stack_top;
                 vm.stack_top--;
@@ -491,7 +520,25 @@ result interpret_inline(uint8_t *bytecode) {
                 vm.stack_top++;
                 break;
             }
+            case JIF: {
+                printf("Doing JIF\n");
+                if (*(vm.stack_top - 1) != 0) {
+                    printf("Jumping...\n");
+                    uint8_t loc = (*vm.instruction_ptr)++;
+                    printf("loc=%d\n", loc);
+
+                    /*
+                     * We have to subtract 1 to account for the increment of the
+                     * instruction pointer at the beginning of the loop.
+                     */
+                    vm.instruction_ptr = bytecode + loc - 1;
+                } else {
+                    printf("Falling through...\n");
+                }
+                break;
+            }
             case POP_RES: {
+                printf("Doing POP_RES\n");
 
                 /*
                  * Pop and set that value as the return val.
@@ -501,6 +548,7 @@ result interpret_inline(uint8_t *bytecode) {
                 break;
             }
             case DONE: {
+                printf("Done!\n");
                 return SUCCESS;
             }
             default: {

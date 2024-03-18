@@ -151,6 +151,7 @@ result threaded_interpret(uint16_t *bytecode) {
      */
 
     load_imm_label:
+    printf("Doing LOAD_IMM\n");
     instruction = *vm.instruction_ptr++;
     op = DECODE_OP(instruction);
     r0 = DECODE_R0(instruction);
@@ -161,6 +162,7 @@ result threaded_interpret(uint16_t *bytecode) {
     go_next;
 
     add_label:
+    printf("Doing ADD\n");
     instruction = *vm.instruction_ptr++;
     op = DECODE_OP(instruction);
     r0 = DECODE_R0(instruction);
@@ -171,6 +173,7 @@ result threaded_interpret(uint16_t *bytecode) {
     go_next;
 
     sub_label:
+    printf("Doing SUB\n");
     instruction = *vm.instruction_ptr++;
     op = DECODE_OP(instruction);
     r0 = DECODE_R0(instruction);
@@ -181,6 +184,7 @@ result threaded_interpret(uint16_t *bytecode) {
     go_next;
 
     mul_label:
+    printf("Doing MUL\n");
     instruction = *vm.instruction_ptr++;
     op = DECODE_OP(instruction);
     r0 = DECODE_R0(instruction);
@@ -191,6 +195,7 @@ result threaded_interpret(uint16_t *bytecode) {
     go_next;
 
     div_label:
+    printf("Doing DIV\n");
     instruction = *vm.instruction_ptr++;
     op = DECODE_OP(instruction);
     r0 = DECODE_R0(instruction);
@@ -201,6 +206,7 @@ result threaded_interpret(uint16_t *bytecode) {
     go_next;
 
     mov_res_label:
+    printf("Doing MOV_RES\n");
     instruction = *vm.instruction_ptr++;
     op = DECODE_OP(instruction);
     r0 = DECODE_R0(instruction);

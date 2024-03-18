@@ -30,6 +30,7 @@
 #define NOT         "NOT\n"
 #define LSHIFT      "LSHIFT\n"
 #define RSHIFT      "RSHIFT\n"
+#define JIF         "JIF\n"
 #define POP_RES     "POP_RES\n"
 #define DONE        "DONE\n"
 
@@ -47,8 +48,9 @@
 #define NOT_STR         "00001000"
 #define LSHIFT_STR      "00001001"
 #define RSHIFT_STR      "00001010"
-#define POP_RES_STR     "00001011"
-#define DONE_STR        "00001100"
+#define JIF_STR         "00001011"
+#define POP_RES_STR     "00001100"
+#define DONE_STR        "00001101"
 
 /*
  * Define a helper function for converting immediate values into binary strings.
@@ -168,6 +170,24 @@ int main(int argc, char *argv[]) {
         } else if (strcmp(line, RSHIFT) == 0) {
             printf(RSHIFT);
             instruction = strtol(RSHIFT_STR, NULL, 2);
+        } else if (strcmp(line, JIF) == 0) {
+
+            /*
+             * We have to encode both the JIF instruction and the immediate
+             * value after it.
+             */
+            printf(JIF);
+            instruction = strtol(JIF_STR, NULL, 2);
+            fwrite(&instruction, sizeof(instruction), 1, dest_f);
+            if (fgets(line, sizeof(line), src_f) == NULL) {
+                fprintf(stderr, "Could not read immediate value\n");
+                fflush(stderr);
+                exit(EXIT_FAILURE);
+            }
+            printf("%s", line);
+            char *imm_str = imm_bin_str(strtoul(line, NULL, 10));
+            instruction = strtol(imm_str, NULL, 2);
+            free(imm_str);
         } else if (strcmp(line, POP_RES) == 0) {
             printf(POP_RES);
             instruction = strtol(POP_RES_STR, NULL, 2);
